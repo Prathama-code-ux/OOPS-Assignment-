@@ -1,91 +1,70 @@
 import java.util.HashMap;
-
-class Student {
-    private String name;
-    private int rollNo;
-    private String[] subjects;
-
-    public Student(String name, int rollNo, String[] subjects) {
-        this.name = name;
-        this.rollNo = rollNo;
-        this.subjects = subjects;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public int getRollNo() {
-        return rollNo;
-    }
-
-    public String[] getSubjects() {
-        return subjects;
-    }
-}
-
-class TabulationSheet {
-    private String subjectName;
-    private HashMap<Integer, Integer> marks;
-
-    public TabulationSheet(String subjectName) {
-        this.subjectName = subjectName;
-        marks = new HashMap<>();
-    }
-
-    public void addMark(int rollNo, int mark) {
-        marks.put(rollNo, mark);
-    }
-
-    public int getMark(int rollNo) {
-        return marks.getOrDefault(rollNo, 0);
-    }
-
-    public String getSubjectName() {
-        return subjectName;
-    }
-}
-
-class MarkSheet {
-    private Student student;
-    private TabulationSheet[] sheets;
-
-    public MarkSheet(Student student, TabulationSheet[] sheets) {
-        this.student = student;
-        this.sheets = sheets;
-    }
-
-    public void printMarkSheet() {
-        System.out.println("\n----- MARK SHEET -----");
-        System.out.println("Name    : " + student.getName());
-        System.out.println("Roll No : " + student.getRollNo());
-
-        int total = 0;
-
-        for (int i = 0; i < sheets.length; i++) {
-            int mark = sheets[i].getMark(student.getRollNo());
-
-            System.out.println(
-                sheets[i].getSubjectName() + " : " + mark
-            );
-
-            total += mark;
-        }
-
-        System.out.println("Total Marks : " + total);
-    }
-}
+import java.util.Map;
 
 public class Tabulation {
-    public static void main(String[] args) {
+    static class Student {
+        private String name;
+        private int rollNo;
+        private String[] subjects;
 
-        String[] subjects = {
-                "Math",
-                "Physics",
-                "Chemistry",
-                "English",
-                "Computer"
-        };
+        public Student(String name, int rollNo, String[] subjects) {
+            this.name = name;
+            this.rollNo = rollNo;
+            this.subjects = subjects;
+        }
+
+        public String getName() { return name; }
+        public void setName(String name) { this.name = name; }
+
+        public int getRollNo() { return rollNo; }
+        public void setRollNo(int rollNo) { this.rollNo = rollNo; }
+
+        public String[] getSubjects() { return subjects; }
+        public void setSubjects(String[] subjects) { this.subjects = subjects; }
+    }
+
+    static class TabulationSheet {
+        private String subjectName;
+        private HashMap<Integer, Integer> marks = new HashMap<>();
+
+        public TabulationSheet(String subjectName) {
+            this.subjectName = subjectName;
+        }
+
+        public void addMark(int rollNo, int mark) {
+            marks.put(rollNo, mark);
+        }
+
+        public int getMark(int rollNo) {
+            return marks.getOrDefault(rollNo, 0);
+        }
+
+        public String getSubjectName() { return subjectName; }
+    }
+
+    static class MarkSheet {
+        private String studentName;
+        private HashMap<String, Integer> marks = new HashMap<>();
+
+        public void addStudentName(String name) {
+            this.studentName = name;
+        }
+
+        public void addMark(String subjectName, int mark) {
+            marks.put(subjectName, mark);
+        }
+
+        public void printMarkSheet() {
+            System.out.println("Mark Sheet for: " + studentName);
+            for (Map.Entry<String, Integer> entry : marks.entrySet()) {
+                System.out.println(entry.getKey() + ": " + entry.getValue());
+            }
+            System.out.println();
+        }
+    }
+
+    public static void main(String[] args) {
+        String[] subjects = {"Math", "Physics", "Chemistry", "English", "Computer"};
 
         Student s1 = new Student("Alice", 101, subjects);
         Student s2 = new Student("Bob", 102, subjects);
@@ -117,16 +96,22 @@ public class Tabulation {
         computer.addMark(102, 91);
         computer.addMark(103, 89);
 
-        TabulationSheet[] sheets = {
-                math, physics, chemistry, english, computer
-        };
+        TabulationSheet[] sheets = {math, physics, chemistry, english, computer};
 
-        MarkSheet m1 = new MarkSheet(s1, sheets);
-        MarkSheet m2 = new MarkSheet(s2, sheets);
-        MarkSheet m3 = new MarkSheet(s3, sheets);
+        Student[] students = {s1, s2, s3};
+        MarkSheet[] markSheets = new MarkSheet[3];
 
-        m1.printMarkSheet();
-        m2.printMarkSheet();
-        m3.printMarkSheet();
+        for (int i = 0; i < students.length; i++) {
+            Student s = students[i];
+            markSheets[i] = new MarkSheet();
+            markSheets[i].addStudentName(s.getName());
+            for (TabulationSheet sheet : sheets) {
+                markSheets[i].addMark(sheet.getSubjectName(), sheet.getMark(s.getRollNo()));
+            }
+        }
+
+        for (MarkSheet ms : markSheets) {
+            ms.printMarkSheet();
+        }
     }
 }
